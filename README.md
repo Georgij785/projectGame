@@ -21,3 +21,9 @@ bp cnelbb xfcnm cnhjxrb lkz ufkjxrb
 делать планирую на движке godot; для нго жулательно изучить язык gd script;
 https://gdquest.github.io/learn-gdscript/?ref=godot-docs#course/lesson-3-standing-on-shoulders-of-giants/lesson.tres
 прошёл 2 урока, скачал godot, и добавил расирение для vsc
+
+
+
+
+
+посмотрел игры на itch.io, думаю над идеей
