@@ -2,8 +2,10 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.Area;
 import java.util.ArrayList;
 import java.util.List;
+
 
 
 public class RectanglesDifference extends JPanel {
@@ -48,7 +50,7 @@ public class RectanglesDifference extends JPanel {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g); // вызываем создание площадки для рисования из род. класса , чтобы каждый раз было чистое поле без остатков с предыдущих рисований
-                drawContent((Graphics2D) g)// передаём графику g, конвертириуя её в 2д графику для правильной отрисовки
+                drawContent((Graphics2D) g);// передаём графику g, конвертириуя её в 2д графику для правильной отрисовки
             }
 
             @Override
