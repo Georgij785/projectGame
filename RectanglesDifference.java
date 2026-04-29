@@ -9,59 +9,60 @@ import java.util.List;
 public class RectanglesDifference extends JPanel {
 
     // Множества прямоугольников
-    private final List<Rectangle> firstSet = new ArrayList<>();
-    private final List<Rectangle> secondSet = new ArrayList<>();
+    private final List<Rectangle> firstSet = new ArrayList<>(); //1
+    private final List<Rectangle> secondSet = new ArrayList<>();//2
 
     // Цвета
-    private static final Color FIRST_SET_COLOR = Color.RED;
-    private static final Color SECOND_SET_COLOR = Color.BLUE;
-    private static final Color DIFFERENCE_COLOR = new Color(0, 255, 0, 128);
+    private static final Color FIRST_SET_COLOR = Color.RED; //1
+    private static final Color SECOND_SET_COLOR = Color.BLUE; //2
+    private static final Color DIFFERENCE_COLOR = new Color(0, 255, 0, 128);//разность
     private static final Color PREVIEW_COLOR = Color.GRAY;
 
-    // Поля ввода
+    // Поля ввода(для задачи прямоугольников координатно)
     private final JTextField xField = new JTextField(5);
     private final JTextField yField = new JTextField(5);
     private final JTextField widthField = new JTextField(5);
     private final JTextField heightField = new JTextField(5);
 
-    // Выбор множества для добавления
-    private final JRadioButton firstSetRadio = new JRadioButton("Первое множество", true);
-    private final JRadioButton secondSetRadio = new JRadioButton("Второе множество");
+    // Выбор множества для добавления(2 кнопки сверху для переключения, первую(для первого множества делаем по умолчанию выбранной из двух))
+    private final JRadioButton firstSetRadio = new JRadioButton("Первое множество", true);//1
+    private final JRadioButton secondSetRadio = new JRadioButton("Второе множество");//2
 
     // Координаты мыши для отображения
-    private final JLabel mouseCoordLabel = new JLabel("X: 0, Y: 0");
+    private final JLabel mouseCoordLabel = new JLabel("X: 0, Y: 0"); // следим за положением мыши
 
-    // Переменные для рисования мышью
+    // Переменные для рисования мышью(статус мыши для записывания полей при рисовании от руки)
     private Point startPoint = null;
     private Point currentPoint = null;
     private boolean isDrawing = false;
 
-    // Панель для рисования
-    private final JPanel drawingPanel;
+    // Панель для рисования(создаём часть окна где будут восприниматься вводы через рисунок мышью)
+    private final JPanel drawingPanel; 
 
     public RectanglesDifference() {
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout()); //просто создаём новый расклад окна
 
         // Создаём панель рисования с обработчиками мыши
+        // создаём новое окно для рисования, 
         drawingPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                drawContent((Graphics2D) g);
+                super.paintComponent(g); // вызываем создание площадки для рисования из род. класса , чтобы каждый раз было чистое поле без остатков с предыдущих рисований
+                drawContent((Graphics2D) g)// передаём графику g, конвертириуя её в 2д графику для правильной отрисовки
             }
 
             @Override
             public Dimension getPreferredSize() {
-                return new Dimension(800, 600);
+                return new Dimension(800, 600);//устанавливаем изначальное отношение сторон окна
             }
         };
-        drawingPanel.setBackground(Color.WHITE);
-        setupMouseListeners();
-        add(drawingPanel, BorderLayout.CENTER);
+        drawingPanel.setBackground(Color.WHITE); //красим фон
+        setupMouseListeners();// создаём объект который будет следить за мышью
+        add(drawingPanel, BorderLayout.CENTER);// помещаем поле для рисования по центру окна программы
 
         // Панель управления
         JPanel controlPanel = createControlPanel();
-        add(controlPanel, BorderLayout.NORTH);
+        add(controlPanel, BorderLayout.NORTH);//ставим поле с кнопками управления на север окна, над панелью для рисования
     }
 
 
@@ -147,7 +148,6 @@ public class RectanglesDifference extends JPanel {
         addToSecondBtn.addActionListener(e -> addFromFields(false));
         panel.add(addToSecondBtn);
 
-        panel.add(new JSeparator(SwingConstants.VERTICAL));
 
 
         ButtonGroup group = new ButtonGroup();
@@ -155,8 +155,6 @@ public class RectanglesDifference extends JPanel {
         group.add(secondSetRadio);
         panel.add(firstSetRadio);
         panel.add(secondSetRadio);
-
-        panel.add(new JSeparator(SwingConstants.VERTICAL));
 
         JButton clearFirstBtn = new JButton("Очистить первое");
         clearFirstBtn.addActionListener(e -> {
@@ -179,10 +177,6 @@ public class RectanglesDifference extends JPanel {
             repaint();
         });
         panel.add(clearAllBtn);
-
-        panel.add(new JSeparator(SwingConstants.VERTICAL));
-        panel.add(mouseCoordLabel);
-
         return panel;
     }
 
@@ -213,7 +207,7 @@ public class RectanglesDifference extends JPanel {
                 return null;
             }
             return new Rectangle(x, y, width, height);
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this,
                     "Введите целые числа во все поля.",
                     "Ошибка ввода", JOptionPane.ERROR_MESSAGE);
@@ -225,16 +219,22 @@ public class RectanglesDifference extends JPanel {
     private void drawContent(Graphics2D g2d) {
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        g2d.setColor(DIFFERENCE_COLOR);
-        int width = drawingPanel.getWidth();
-        int height = drawingPanel.getHeight();
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                if (isInFirstSet(x, y) && !isInSecondSet(x, y)) {
-                    g2d.fillRect(x, y, 1, 1);
-                }
-            }
+        Area first = new Area();
+        for (Rectangle r : firstSet) {
+            first.add(new Area(r));
         }
+        Area second = new Area();
+        for (Rectangle r : secondSet) {
+            second.add(new Area(r));
+        }
+
+        // Вычисляем разность
+        first.subtract(second);
+
+        // Рисуем одним вызовом
+        g2d.setColor(DIFFERENCE_COLOR);
+        g2d.fill(first);
+
 
 
         g2d.setColor(FIRST_SET_COLOR);
@@ -283,7 +283,7 @@ public class RectanglesDifference extends JPanel {
     }
 
     @Override
-    public void repaint() {
+    public void repaint() {// обновляем окно рисования после действия
         if (drawingPanel != null) {
             drawingPanel.repaint();
         }
